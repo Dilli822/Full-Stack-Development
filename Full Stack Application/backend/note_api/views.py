@@ -19,7 +19,9 @@ class Notes(generics.GenericAPIView):
         notes = NoteModel.objects.all()
         total_notes = notes.count()
         if search_param:
+            # here double underscore for forieng key relation with db and icontains means incase sensitive for search_param
             notes = notes.filter(title__icontains=search_param)
+            # here many flag will take not only single object but list of objects 
         serializer = self.serializer_class(notes[start_num:end_num], many=True)
         return Response({
             "status": "success",
@@ -75,5 +77,5 @@ class NoteDetail(generics.GenericAPIView):
             return Response({"status": "fail", "message": f"Note with Id: {pk} not found"}, status=status.HTTP_404_NOT_FOUND)
 
         note.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({"status": "deleted", "message": f"Successfully Deleted Id: {pk}"}, status=status.HTTP_204_NO_CONTENT)
 

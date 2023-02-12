@@ -11,6 +11,16 @@ li{
   list-style: none;
 }
 
+table{
+  width: 100%;
+  border-collapse: collapse;
+}
+
+tr,table,th,thead,tbody,td{
+  border: 1px solid #000;
+}
+
+
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
