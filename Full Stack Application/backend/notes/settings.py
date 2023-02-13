@@ -42,7 +42,17 @@ INSTALLED_APPS = [
     'note_api',
     'rest_framework',
     'corsheaders', 
+    'authapp',
 ]
+
+# REST_FRAMEWORK = {
+#     'DEFAULT_PERMISSION_CLASSES': [
+#         'rest_framework.permissions.AllowAny',
+#     ],
+#     'DEFAULT_AUTHENTICATION_CLASSES': [
+#         'djangorestframework_jwt.authentication.JSONWebTokenAuthentication',
+#     ],
+# }
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
