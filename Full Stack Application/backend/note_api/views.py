@@ -4,12 +4,13 @@ from note_api.models import NoteModel
 from note_api.serializers import NoteSerializer
 import math
 from datetime import datetime
-
 from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 
 
 class Notes(generics.GenericAPIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     serializer_class = NoteSerializer
     queryset = NoteModel.objects.all()
 
@@ -44,7 +45,7 @@ class Notes(generics.GenericAPIView):
 
 
 class NoteDetail(generics.GenericAPIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     queryset = NoteModel.objects.all()
     serializer_class = NoteSerializer
 

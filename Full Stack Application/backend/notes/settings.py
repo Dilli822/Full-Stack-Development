@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders', 
     'authapp',
+    'userListApi',
 ]
 
 # REST_FRAMEWORK = {
@@ -132,6 +133,8 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
+
+USE_TZ=True
 
 
 # Static files (CSS, JavaScript, Images)

@@ -20,4 +20,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('authapp/api/notes/', include('note_api.urls')),
     path('authapp/', include('authapp.urls')),
+    path('userListApi/', include('userListApi.urls'))
 ]
