@@ -3,7 +3,7 @@ import axios from 'axios';
 import Home from '../home/home';
 import Signup from '../signup/Signup';
 import { Link } from 'react-router-dom';
-
+import Crud from '../crud/crud';
 axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
 
 class Login extends Component {
@@ -53,7 +53,7 @@ class Login extends Component {
 
     // If the user is already logged in, redirect to the home page
     if (this.state.isLoggedIn) {
-      return <Home />
+      return <Crud />
     }
 
     // Otherwise, render the login form

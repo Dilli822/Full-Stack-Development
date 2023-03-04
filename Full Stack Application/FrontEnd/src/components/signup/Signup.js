@@ -142,7 +142,7 @@ const Signup = () => {
             localStorage.setItem('token', response.data.token);
             console.log("signup token ", response.data.token);
             
-            setMessage("Successfully signed up!");
+            setMessage("Successfully signed up!Please wait you been redirecting to login page......");
             setTimeout(() => {
                 setMessage("");
                 navigate("/login");

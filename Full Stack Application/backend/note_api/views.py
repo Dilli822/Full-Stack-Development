@@ -1,18 +1,23 @@
+from django.contrib.auth import authenticate, login
 from rest_framework.response import Response
-from rest_framework import status, generics, authentication, permissions
+from rest_framework import status, generics
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from note_api.models import NoteModel
 from note_api.serializers import NoteSerializer
 import math
 from datetime import datetime
 from rest_framework.permissions import IsAuthenticated
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
+from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
+from rest_framework.views import APIView
 
 class Notes(generics.GenericAPIView):
-    # permission_classes = [IsAuthenticated]
-    serializer_class = NoteSerializer
+    authentication_classes = [JSONWebTokenAuthentication]
+    permission_classes = [IsAuthenticated]
     queryset = NoteModel.objects.all()
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         page_num = int(request.GET.get("page", 1))
@@ -23,9 +28,7 @@ class Notes(generics.GenericAPIView):
         notes = NoteModel.objects.all()
         total_notes = notes.count()
         if search_param:
-            # here double underscore for forieng key relation with db and icontains means incase sensitive for search_param
             notes = notes.filter(title__icontains=search_param)
-            # here many flag will take not only single object but list of objects 
         serializer = self.serializer_class(notes[start_num:end_num], many=True)
         return Response({
             "status": "success",
@@ -45,9 +48,12 @@ class Notes(generics.GenericAPIView):
 
 
 class NoteDetail(generics.GenericAPIView):
-    # permission_classes = [IsAuthenticated]
+    authentication_classes = [JSONWebTokenAuthentication]
+    permission_classes = [IsAuthenticated]
     queryset = NoteModel.objects.all()
     serializer_class = NoteSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def get_note(self, pk):
         try:
@@ -82,4 +88,4 @@ class NoteDetail(generics.GenericAPIView):
             return Response({"status": "fail", "message": f"Note with Id: {pk} not found"}, status=status.HTTP_404_NOT_FOUND)
 
         note.delete()
-        return Response({"status": "deleted", "message": f"Successfully Deleted Id: {pk}"}, status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_204_NO_CONTENT)

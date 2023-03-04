@@ -153,3 +153,18 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",
 ]
 CORS_ALLOW_CREDENTIALS = True
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+}
+
+SIMPLE_JWT = {
+    'AUTH_HEADER_TYPES': ('JWT',),
+}
+from django.core.management.utils import get_random_secret_key
+print(get_random_secret_key())
+
+SECRET_KEY = '<generated_secret_key>'

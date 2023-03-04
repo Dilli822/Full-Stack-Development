@@ -2,6 +2,7 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 const token = localStorage.getItem('token');
+console.log(token);
 const isLoggedIn = token && !isTokenExpired(token);
 
 class Crud extends Component {
@@ -16,10 +17,15 @@ class Crud extends Component {
 
   componentDidMount() {
     this.setState({ loading: true });
-    axios.get('http://127.0.0.1:8000/authapp/api/notes/')
+    axios.get('http://127.0.0.1:8000/authapp/api/notes/', {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
       .then(res => {
         console.log(res.data.notes);
         this.setState({ data: res.data.notes, loading: false });
+        console.log("crud token", token);
       })
       .catch(err => {
         console.error("error ", err);
@@ -27,10 +33,13 @@ class Crud extends Component {
       });
   }
   
-
   getData = () => {
     this.setState({ loading: true });
-    axios.get('http://127.0.0.1:8000/authapp/api/notes/')
+    axios.get('http://127.0.0.1:8000/authapp/api/notes/', {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
       .then(res => {
         console.log(res.data.notes);
         this.setState({ data: res.data.notes, loading: false });
@@ -40,11 +49,13 @@ class Crud extends Component {
         this.setState({ loading: false });
       });
   };
-
-
-
+  
   createData = (newData) => {
-    axios.post('http://127.0.0.1:8000/authapp/api/notes/',newData)
+    axios.post('http://127.0.0.1:8000/authapp/api/notes/', newData, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
       .then(res => {
         this.getData();
       })
@@ -52,23 +63,31 @@ class Crud extends Component {
         console.error(err);
       });
   };
-
+  
   updateData = (id, updatedData) => {
     if (window.confirm('Are you sure you want to update this item?')) {
-    axios.patch(`http://127.0.0.1:8000/authapp/api/notes/${id}`, updatedData)
-      .then(res => {
-        this.getData();
-        this.setState({ editingId: null, title: '', content: '', category: '' });
+      axios.patch(`http://127.0.0.1:8000/authapp/api/notes/${id}`, updatedData, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       })
-      .catch(err => {
-        console.error(err);
-      });
+        .then(res => {
+          this.getData();
+          this.setState({ editingId: null, title: '', content: '', category: '' });
+        })
+        .catch(err => {
+          console.error(err);
+        });
     }
   };
-
+  
   deleteData = (id) => {
     if (window.confirm('Are you sure you want to permanently delete this item?')) {
-      axios.delete(`http://127.0.0.1:8000/authapp/api/notes/${id}`)
+      axios.delete(`http://127.0.0.1:8000/authapp/api/notes/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
         .then(res => {
           this.getData();
         })
@@ -91,10 +110,6 @@ class Crud extends Component {
     } else {
       this.createData({ title: this.state.title, content: this.state.content, category: this.state.category });
     }
-  };
-  
-  handleEditClick = (id, title, content, category) => {
-    this.setState({ editingId: id, title, content, category });
   };
 
   render() {
@@ -207,3 +222,5 @@ function isTokenExpired(token) {
   return false; // placeholder implementation
 }
 export default Crud;
+
+
