@@ -33,11 +33,14 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class BlogSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField(max_length=None, use_url=True, allow_null=True, required=False)
+
     class Meta:
         model = Blog
-        fields = ['id', 'title', 'content', 'author', 'authorName', 'created_at', 'updated_at']
+        fields = ['id', 'title', 'content', 'author', 'authorName', 'created_at', 'updated_at', 'image']
         read_only_fields = ['id', 'author']
         extra_kwargs = {
             'author': {'required': False},
             'id': {'required': False},
+            'image': {'required': False},
         }

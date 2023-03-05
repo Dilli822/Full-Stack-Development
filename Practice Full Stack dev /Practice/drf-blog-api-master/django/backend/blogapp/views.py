@@ -79,12 +79,6 @@ class BlogAPIView(APIView):
         serializer = BlogSerializer(blogs, many=True)
         return Response(serializer.data)
 
-    # def post(self, request):
-    #     serializer = BlogSerializer(data=request.data)
-    #     if serializer.is_valid():
-    #         serializer.save(author=request.user)
-    #         return Response(serializer.data, status=201)
-    #     return Response(serializer.errors, status=400)
     def post(self, request):
         serializer = BlogSerializer(data=request.data)
         if serializer.is_valid():
@@ -101,6 +95,15 @@ class BlogAPIView(APIView):
         return Response(serializer.errors, status=400)
 
     def delete(self, request, pk):
-        blog = Blog.objects.get(pk=pk)
+        blog = Blog.objects.get(author=request.user,pk=pk)
         blog.delete()
         return Response("Sucessfully Deleted",status=204)
+
+
+class BlogAPIList(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request):
+        blogs = Blog.objects.all()
+        serializer = BlogSerializer(blogs, many=True)
+        return Response(serializer.data)
