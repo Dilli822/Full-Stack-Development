@@ -1,37 +1,3 @@
-# from django.shortcuts import render
-# from rest_framework import generics
-# from .serializers import BlogPostSerializer
-# from rest_framework.permissions import IsAuthenticated
-# from .models import BlogPost
-# from rest_framework import permissions
-
-# class IsAuthor(permissions.BasePermission):
-#     def has_object_permission(self, request, view, obj):
-#         if request.method in permissions.SAFE_METHODS:
-#             return True
-#         return obj.author.id == request.user.id
-
-# class BlogLists(generics.ListAPIView):
-#     queryset = BlogPost.objects.all()
-#     serializer_class = BlogPostSerializer
-#     permission_classes = [IsAuthenticated]
-
-# class BlogPostList(generics.ListCreateAPIView):
-#     queryset = BlogPost.objects.all()
-#     serializer_class = BlogPostSerializer
-#     permission_classes = [IsAuthenticated]
-
-#     def get_queryset(self):
-#         return BlogPost.objects.filter(author=self.request.user)
-    
-#     def perform_create(self, serializer):
-#         serializer.save(author=self.request.user, authorName=self.request.user.username)
-        
-# class BlogPostDetail(generics.RetrieveUpdateDestroyAPIView):
-#     queryset = BlogPost.objects.all()
-#     serializer_class = BlogPostSerializer
-#     permission_classes = [IsAuthenticated, IsAuthor]
-
 from rest_framework import generics, permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
