@@ -12,6 +12,8 @@ class RegisterAPIView(generics.CreateAPIView):
     permission_classes = (permissions.AllowAny,)
     serializer_class = UserSerializer
 
+    
+
 
 class LoginAPIView(APIView):
     permission_classes = (permissions.AllowAny,)
@@ -19,11 +21,13 @@ class LoginAPIView(APIView):
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
+        email = request.data.get('email')
 
         user = User.objects.filter(username=username).first()
-
+ 
         if user is None:
             return Response({'error': 'Invalid Credentials'})
+
 
         if not user.check_password(password):
             return Response({'error': 'Invalid Credentials'})
