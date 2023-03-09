@@ -1,18 +1,5 @@
-# from rest_framework import serializers
-# from .models import BlogPost
-# from django.contrib.auth.models import User
 
-
-# class BlogPostSerializer(serializers.ModelSerializer):
-#     author = serializers.PrimaryKeyRelatedField(
-#         queryset= User.objects.all(), required=False
-#     )
-
-#     class Meta:
-#         model = BlogPost
-#         fields = ('id', 'title', 'body', 'created_at', 'updated_at', 'author', 'authorName')
-# blog/serializers.py
-from rest_framework import serializers
+from rest_framework import serializers, status
 from django.contrib.auth.models import User
 from .models import Blog
 
@@ -25,9 +12,9 @@ class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         # Check if username already exists
         if User.objects.filter(username=validated_data['username']).exists():
-            raise serializers.ValidationError("Username already taken")
+            raise serializers.ValidationError({"username": "Username already taken"})
         elif User.objects.filter(email=validated_data['email']).exists():
-            raise serializers.ValidationError("Email is already registered!")
+            raise serializers.ValidationError({"email": "Email is already registered!"})
         
         user = User(
             email=validated_data['email'],
@@ -44,7 +31,7 @@ class BlogSerializer(serializers.ModelSerializer):
     class Meta:
         model = Blog
         fields = ['id', 'title', 'content', 'author', 'authorName', 'created_at', 'updated_at', 'image']
-        read_only_fields = ['id', 'author']
+        read_only_fields = ['id','author']
         extra_kwargs = {
             'author': {'required': False},
             'id': {'required': False},

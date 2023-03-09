@@ -13,8 +13,6 @@ class RegisterAPIView(generics.CreateAPIView):
     serializer_class = UserSerializer
 
     
-
-
 class LoginAPIView(APIView):
     permission_classes = (permissions.AllowAny,)
 
@@ -22,7 +20,6 @@ class LoginAPIView(APIView):
         username = request.data.get('username')
         password = request.data.get('password')
         email = request.data.get('email')
-
         user = User.objects.filter(username=username).first()
  
         if user is None:
@@ -39,8 +36,6 @@ class LoginAPIView(APIView):
             'access': str(refresh.access_token),
         })
 
-
-
 class BlogAPIView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
@@ -48,18 +43,23 @@ class BlogAPIView(APIView):
         blogs = Blog.objects.filter(author=request.user)
         serializer = BlogSerializer(blogs, many=True)
         return Response(serializer.data)
-
+    
     def post(self, request):
         serializer = BlogSerializer(data=request.data)
         if serializer.is_valid():
+            if 'image' not in request.FILES:
+                serializer.validated_data['image'] = None  # Use default value if image not uploaded
             serializer.save(author=request.user)
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
     
+
     def put(self, request, pk):
         blog = Blog.objects.get(pk=pk)
         serializer = BlogSerializer(blog, data=request.data)
         if serializer.is_valid():
+            if 'image' not in request.FILES:
+                serializer.validated_data['image'] = blog.image  # Use previously uploaded image if not uploaded
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=400)
