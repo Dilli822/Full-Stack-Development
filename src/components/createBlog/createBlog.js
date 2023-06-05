@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import Tabs from "@mui/material/Tabs";
@@ -17,90 +18,12 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import PastNestedList from "../listed_Menu/past_menu_list";
 import SemesterNestedList from "../listed_Menu/semester_subject_menu";
 import SearchAppBar from "../searching/top_menu_search";
-import Likes from "../likes/blog_Liked";
+import Likes from "../likes/blog_Likes";
 import zIndex from "@mui/material/styles/zIndex";
-import CreateBlog from "../createBlog/createBlog";
-import UpdateBlog from "../updateBlog/updateBlog";
+
+export default function CreateBlog(){
 
 
-const Item = styled(Paper)(({ theme }) => ({
-    backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
-    ...theme.typography.body2,
-    padding: theme.spacing(1),
-    textAlign: "center",
-    color: theme.palette.text.secondary,
-}));
-
-const Search = styled("div")(({ theme }) => ({
-    position: "relative",
-    borderRadius: theme.shape.borderRadius,
-    backgroundColor: alpha(theme.palette.common.white, 0.15),
-    "&:hover": {
-        backgroundColor: alpha(theme.palette.common.white, 0.25),
-    },
-    marginLeft: 0,
-    width: "100%",
-    [theme.breakpoints.up("sm")]: {
-        marginLeft: theme.spacing(1),
-        width: "auto",
-    },
-}));
-
-const SearchIconWrapper = styled("div")(({ theme }) => ({
-    padding: theme.spacing(0, 2),
-    height: "100%",
-    position: "absolute",
-    pointerEvents: "none",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-}));
-
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-    color: "inherit",
-    "& .MuiInputBase-input": {
-        padding: theme.spacing(1, 1, 1, 0),
-        // vertical padding + font size from searchIcon
-        paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-        transition: theme.transitions.create("width"),
-        width: "100%",
-        [theme.breakpoints.up("sm")]: {
-            width: "12ch",
-            "&:focus": {
-                width: "20ch",
-            },
-        },
-    },
-}));
-
-function TabPanel(props) {
-    const { children, value, index, ...other } = props;
-
-    return (
-        <div role="tabpanel" hidden={value !== index} id={`simple-tabpanel-${index}`} aria-labelledby={`simple-tab-${index}`} {...other}>
-            {value === index && (
-                <Box sx={{ p: 3 }}>
-                    <Typography>{children}</Typography>
-                </Box>
-            )}
-        </div>
-    );
-}
-
-TabPanel.propTypes = {
-    children: PropTypes.node,
-    index: PropTypes.number.isRequired,
-    value: PropTypes.number.isRequired,
-};
-
-function a11yProps(index) {
-    return {
-        id: `simple-tab-${index}`,
-        "aria-controls": `simple-tabpanel-${index}`,
-    };
-}
-
-function Blog() {
     const [value, setValue] = React.useState(0);
 
     const handleChange = (event, newValue) => {
@@ -202,7 +125,7 @@ function Blog() {
                         setBlogs(data);
                         setAuthorId(data.author_id);
                         setCountBlogLikes(data.likes);
-
+                        setMainLoading(false);
                         setLoading(false);
                     } else {
                         throw new Error("Refresh token is invalid");
@@ -212,9 +135,11 @@ function Blog() {
                     console.log(data);
                     setBlogs(data);
                     setLoading(false);
+                    
                 }
             } catch (error) {
                 console.error(error);
+                setMainLoading(true);
             }
         };
 
@@ -232,8 +157,10 @@ function Blog() {
                 setUser(data);
                 setUserId(data.id);
                 setUserName(data.username);
+                setMainLoading(false);
             } catch (error) {
                 console.error(error);
+                setMainLoading(true);
             }
         };
         fetchUser();
@@ -241,82 +168,96 @@ function Blog() {
         fetchBlogs();
     }, []);
 
-    const navigate = useNavigate();
-    
-    if (loading) {
-        return <span class="loader"></span>;
-    }
 
+    const handleCreate = async () => {
+        const newBlog = {
+          title: newBlogTitle,
+          content: newBlogContent,
+          authorName: newBlogAuthorName,
+          image: newBlogImage,
+          video: newBlogVideo, // Add the video file to the new blog object
+        };
+      
+        const formData = new FormData();
+        formData.append("title", newBlog.title);
+        formData.append("content", newBlog.content);
+        formData.append("authorName", newBlog.authorName);
+        if (newBlogImage !== null) {
+          formData.append("image", newBlogImage);
+        }
+        if (newBlogVideo !== null) {
+          formData.append("video", newBlogVideo);
+        }
+      
+        try {
+          const response = await fetch("http://localhost:8000/api/blog/create/", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+            body: formData,
+          });
+      
+          const data = await response.json();
+      
+          setBlogs([...blogs, data]);
+          setNewBlogTitle("");
+          setNewBlogContent("");
+          setNewBlogAuthorName("");
+          setNewBlogImage(null);
+          setNewBlogVideo(null);
+          setSuccessMessage("Post/Blog Created successfully!");
+      
+          setTimeout(() => {
+            setSuccessMessage("");
+            setValue(0);
+          }, 2000);
+        } catch (error) {
+          console.error(error);
+        }
+      };
+      
 
-    return (
+    return(
         <div>
-            <Container maxWidth="auto" style={{ height: "auto", position: "relative" }}>
-                <div style={{ position: "sticky", top: "0", width: "100%", zIndex: "99" }}>
-                    <div style={{ padding: "15px", backgroundColor: "#FFF" }}>
-                        <div class="row">
-                            <div class="col-3">
-                                {/* <h3> {username}</h3>
-                 <h4>{userId} </h4> */}
-                                <AccountMenu />
-                            </div>
 
-                            <div class="col-5">
-                                <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-                                    <Tab label="NewsFeed" {...a11yProps(0)} />
-                                    <Tab label="Edit / Delete" {...a11yProps(1)} />
-                                    <Tab label="Create/Add New" {...a11yProps(2)} />
-                                </Tabs>
+    <div>
+        <h3>Create/Add New Blog</h3>{" "}
+    </div>
+    <label>Title: </label>
+    <br></br>
+    <input style={{ width: "100%" }} type="text" value={newBlogTitle} onChange={(event) => setNewBlogTitle(event.target.value)} />
+    <br />
+    <label>Content: </label> <br></br>
+    <textarea style={{ width: "100%", border: "1px solid #dee0e2", height: "auto", minHeight: "35vh" }} value={newBlogContent} onChange={(event) => setNewBlogContent(event.target.value)} />
+    <br />
+    <label>Author Name: </label> <br></br>
+    <input style={{ width: "100%" }} type="text" value={newBlogAuthorName} onChange={(event) => setNewBlogAuthorName(event.target.value)} />
+    <div>
+        <span> *Please Only Upload Valid Format </span>
+        <label htmlFor="newBlogImage">Image * .jpg, .png, .jpeg</label>
+        <input style={{ backgroundColor: "transparent", width: "100%" }} type="file" id="newBlogImage" name="newBlogImage" onChange={(event) => setNewBlogImage(event.target.files[0])} />
+    </div>
 
-                                {successMessage && <div style={{ backgroundColor: "green", color: "white" }}>{successMessage}</div>}
-                            </div>
-                            <div class="col-4">
-                                <div>
-                                    <SearchAppBar />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <div>
+<span>*Please Only Upload Valid Format</span>
+<label htmlFor="newBlogVideo">Video * .mp4, .mov, .avi</label>
+<input
+style={{ backgroundColor: "transparent", width: "100%" }}
+type="file"
+id="newBlogVideo"
+name="newBlogVideo"
+onChange={(event) => setNewBlogVideo(event.target.files[0])}
+/>
+</div>
+<br />
 
-                <div style={{ minHeight: "100vh", width: "100%" }}>
-                    <div style={{ padding: "0px", backgroundColor: "#FFf" }}>
-                        <div class="row">
-                            <div class="col-3">
-                                <div style={{ position: "fixed" }}>
-                                    <SemesterNestedList />
-                                </div>
-                            </div>
-                            <div class="col-5">
-                                <Box sx={{ borderBottom: 1, borderColor: "divider" }}></Box>
-                   
+    <br></br>
+    <button className="create" onClick={handleCreate}>
+        Create Blog
+    </button>
 
-                                <TabPanel value={value} index={0}>
-          <Likes />
-        </TabPanel>
 
-        <TabPanel value={value} index={1}>
-          <UpdateBlog />
-        </TabPanel>
-
-        <TabPanel value={value} index={2}>
-          <CreateBlog />
-        </TabPanel>
-
-                            </div>
-
-                            <div class="col-4">
-                                <div style={{ position: "fixed" }}>
-                                    <PastNestedList />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </Container>
-
-            <footer style={{ background: "#000", color: "#fff" }}>footer</footer>
         </div>
-    );
+    )
 }
-
-export default Blog;

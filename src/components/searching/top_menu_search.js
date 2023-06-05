@@ -1,89 +1,78 @@
-import * as React from 'react';
-import { styled, alpha } from '@mui/material/styles';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import InputBase from '@mui/material/InputBase';
-import MenuIcon from '@mui/icons-material/Menu';
-import SearchIcon from '@mui/icons-material/Search';
-
-const Search = styled('div')(({ theme }) => ({
-  position: 'relative',
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: alpha(theme.palette.common.white, 0.15),
-  '&:hover': {
-    backgroundColor: alpha(theme.palette.common.white, 0.25),
-  },
-  marginLeft: 0,
-  width: '100%',
-  [theme.breakpoints.up('sm')]: {
-    marginLeft: theme.spacing(1),
-    width: 'auto',
-  },
-}));
-
-const SearchIconWrapper = styled('div')(({ theme }) => ({
-  padding: theme.spacing(0, 2),
-  height: '100%',
-  position: 'absolute',
-  pointerEvents: 'none',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-}));
-
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-  color: 'inherit',
-  '& .MuiInputBase-input': {
-    padding: theme.spacing(1, 1, 1, 0),
-    // vertical padding + font size from searchIcon
-    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-    transition: theme.transitions.create('width'),
-    width: '100%',
-    [theme.breakpoints.up('sm')]: {
-      width: '12ch',
-      '&:focus': {
-        width: '20ch',
-      },
-    },
-  },
-}));
+import React, { useState, useEffect } from "react";
+import TextField from "@mui/material/TextField";
+import Autocomplete from "@mui/material/Autocomplete";
+import { useNavigate } from "react-router-dom";
 
 export default function SearchAppBar() {
-  return (
-    <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static">
-        <Toolbar>
-          {/* <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="open drawer"
-            sx={{ mr: 2 }}
-          >
-            <MenuIcon />
-          </IconButton> */}
-          {/* <Typography
-            variant="h6"
-            noWrap
-            component="div"
-            sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}
-          >
-            MUI
-          </Typography> */}
-          <Search>
-            <SearchIconWrapper>
-              <SearchIcon />
-            </SearchIconWrapper>
-            <StyledInputBase
-              placeholder="Search…"
-              inputProps={{ 'aria-label': 'search' }}
-            />
-          </Search>
-        </Toolbar>
-      </AppBar>
-    </Box>
-  );
+    const [searchQuery, setSearchQuery] = useState("");
+    const [searchResults, setSearchResults] = useState([]);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await fetch("http://localhost:8000/api/blog/lists/", {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                    },
+                });
+                const data = await response.json();
+                setSearchResults(data);
+            } catch (error) {
+                console.error("Error fetching search results:", error);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    const handleInputChange = (event, value) => {
+        setSearchQuery(value);
+    };
+
+    const handleSelectOption = (event, option) => {
+        if (option && option.title !== "No results found") {
+            // Navigate to the details page of the selected result
+            navigate(`/blog/${option.id}`);
+        }
+    };
+
+    const filterOptions = (options, state) => {
+        if (state.inputValue === "") {
+            // Return an empty array when input is empty to hide the options
+            return [];
+        } else {
+            const filteredOptions = options.filter((option) => option.title.toLowerCase().includes(state.inputValue.toLowerCase()));
+
+            if (filteredOptions.length === 0) {
+                // Add a custom option for "No results found"
+                filteredOptions.push({ title: "No results found" });
+            }
+
+            return filteredOptions;
+        }
+    };
+
+    return (
+        <Autocomplete
+            disablePortal
+            id="combo-box-demo"
+            options={searchResults}
+            noOptionsText="Enter search keywords"
+            getOptionLabel={(option) => (
+                <div>
+                    <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between" }}>
+                        <div>{option.title}</div>
+                        <figure>
+                            <img src={`http://localhost:8000${option.image}`} alt={option.title} style={{ width: 30, height: 30, marginRight: 10 }} />
+                        </figure>
+                    </div>
+                </div>
+            )}
+            filterOptions={filterOptions}
+            sx={{ width: 300 }}
+            renderInput={(params) => <TextField {...params} label="Search" value={searchQuery} onChange={handleInputChange} />}
+            onChange={handleSelectOption}
+        />
+    );
 }

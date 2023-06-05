@@ -5,7 +5,7 @@ import Update from "./update";
 import Create from "./create";
 import Logout from "./logout";
 import ImageUploader from "./storeImagetemporarily";
-import Login from "./login";
+import Login from "../account/login";
 import { useNavigate } from 'react-router-dom';
 
 function BlogList() {

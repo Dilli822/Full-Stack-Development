@@ -8,7 +8,7 @@ import Breadcrumbs from '@mui/material/Breadcrumbs';
 import HomeIcon from '@mui/icons-material/Home';
 import WhatshotIcon from '@mui/icons-material/Whatshot';
 import GrainIcon from '@mui/icons-material/Grain';
-import SignUp from './signup';
+import SignUp from '../account/signup';
 import {Link, useNavigate} from "react-router-dom";
 
 
