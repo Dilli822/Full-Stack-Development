@@ -40,7 +40,14 @@ from django.http import Http404
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 
-
+import os
+from django.conf import settings
+from django.core.files.storage import default_storage
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .serializers import CommentSerializer
+from .models import Comment
 
 class RegisterAPIView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -93,11 +100,22 @@ class BlogAPIView(APIView):
         blog = Blog.objects.get(pk=pk)
         serializer = BlogSerializer(blog, data=request.data)
         if serializer.is_valid():
-            if 'image' not in request.FILES:
-                serializer.validated_data['image'] = blog.image  # Use previously uploaded image if not uploaded
+            if 'image' in request.FILES:
+                # Delete the old image file
+                if blog.image:
+                    image_path = os.path.join(settings.MEDIA_ROOT, str(blog.image))
+                    os.remove(image_path)
+
+            if 'video' in request.FILES:
+                # Delete the old video file
+                if blog.video:
+                    video_path = os.path.join(settings.MEDIA_ROOT, str(blog.video))
+                    os.remove(video_path)
+
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=400)
+    
 
     def delete(self, request, pk):
         blog = Blog.objects.get(author=request.user,pk=pk)
@@ -156,6 +174,7 @@ class BlogLikesAPIView(APIView):
                 'liked_by_current_user': liked_by_current_user,
                 'liked_by': list(blog.liked_by.values_list('id', flat=True)),
                 'total_comments': blog.total_comments,
+                'video': blog.video.url if blog.video else None,  
   
             }
             data.append(blog_data)
@@ -208,11 +227,7 @@ class BlogPostAPIView(APIView):
         
 
 # Comment
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from .serializers import CommentSerializer
-from .models import Comment
+
 
 class CommentListAPIView(APIView):
     def get(self, request):

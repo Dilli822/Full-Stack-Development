@@ -10,6 +10,7 @@ urlpatterns = [
     path('login/', TokenObtainPairView.as_view(), name='login'),
     path('refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('blog/list/', BlogAPIList.as_view(), name='blog-list'),
+    path('blog/lists/', BlogAPIList.as_view(), name='blog-list'),
     path('blog/create/', BlogAPIView.as_view(), name='blog-detail'),
     path('blog/update/<int:pk>/', BlogAPIView.as_view(), name='blog-detail'),
     path('blog/delete/<int:pk>/', BlogAPIView.as_view(), name='blog-detail'),

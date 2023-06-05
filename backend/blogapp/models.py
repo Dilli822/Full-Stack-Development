@@ -93,3 +93,10 @@ class Comment(models.Model):
     def delete(self, *args, **kwargs):
         super().delete(*args, **kwargs)
         self.blog.update_total_comments()
+
+
+class MyModel(models.Model):
+    # Fields and definitions of the model
+
+    def some_method(self):
+        MyModel.objects.using('second_db').filter(...)
